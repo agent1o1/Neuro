@@ -6,16 +6,34 @@ using System.Text;
 
 namespace Neuro
 {
+    struct Food
+    {
+        public float x { get; private set; }
+        public float y { get; private set; }
+        public Food(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
     class World
     {
-        public double Width { get; private set; }
-        public double Height { get; private set; }
-        private List<Agent> agents = new List<Agent>();
+        public float Width { get; private set; }
+        public float Height { get; private set; }
+        public List<Agent> agents { get; private set; }
+        public List<Food> foodList { get; private set; }
+        Random rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
 
-        public World(int width, int height)
+        public World(int width, int height, int foodCount)
         {
             Width = width;
             Height = height;
+            agents = new List<Agent>();
+            foodList = new List<Food>();
+            for (int i = 0; i < foodCount; i++)
+            {
+                foodList.Add(new Food((float)rnd.NextDouble() * width, (float)rnd.NextDouble() * height));
+            }
         }
 
         public void AddAgent(double timeToDeath, double radiusOfView)

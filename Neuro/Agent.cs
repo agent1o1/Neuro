@@ -9,13 +9,13 @@ namespace Neuro
     class Agent
     {
         private double radiusOfView, timeToDeath;
-        public double x { get; private set; }
-        public double y { get; private set; }
+        public float x { get; private set; }
+        public float y { get; private set; }
         public Agent(World world, double timeToDeath, double radiusOfView)
         {
             Random rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
-            this.x = rnd.NextDouble() * world.Width;
-            this.y = rnd.NextDouble() * world.Height;
+            this.x = (float)rnd.NextDouble() * world.Width;
+            this.y = (float)rnd.NextDouble() * world.Height;
             this.timeToDeath = timeToDeath;
             this.radiusOfView = radiusOfView;
         }
@@ -24,7 +24,7 @@ namespace Neuro
             return GetDist(agent.x, x, agent.y, y);
         }
 
-        public double GetDist(double x1, double x2, double y1, double y2)
+        public double GetDist(float x1, float x2, float y1, float y2)
         {
             return Math.Sqrt(Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2));
         }

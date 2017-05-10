@@ -18,8 +18,8 @@ namespace Neuro
     }
     class World
     {
-        public float Width { get; private set; }
-        public float Height { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
         public List<Agent> agents { get; private set; }
         public List<Food> foodList { get; private set; }
         Random rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue));

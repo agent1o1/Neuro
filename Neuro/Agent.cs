@@ -8,11 +8,16 @@ namespace Neuro
 {
     class Agent
     {
-        private double x, y, timeToDeath;//x and y is coordinats
-        private const double view_radius = 20;
-        public void AddAgentIntoWorld(World world, double timeToDeath)
+        private double radiusOfView, timeToDeath;
+        public double x { get; private set; }
+        public double y { get; private set; }
+        public Agent(World world, double timeToDeath, double radiusOfView)
         {
-
+            Random rnd = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
+            this.x = rnd.NextDouble() * world.Width;
+            this.y = rnd.NextDouble() * world.Height;
+            this.timeToDeath = timeToDeath;
+            this.radiusOfView = radiusOfView;
         }
         public double GetDistToAgent(Agent agent)
         {

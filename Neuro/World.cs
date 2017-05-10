@@ -8,9 +8,9 @@ namespace Neuro
 {
     struct Food
     {
-        public float x { get; private set; }
-        public float y { get; private set; }
-        public Food(float x, float y)
+        public double x { get; private set; }
+        public double y { get; private set; }
+        public Food(double x, double y)
         {
             this.x = x;
             this.y = y;
@@ -32,7 +32,7 @@ namespace Neuro
             foodList = new List<Food>();
             for (int i = 0; i < foodCount; i++)
             {
-                foodList.Add(new Food((float)rnd.NextDouble() * width, (float)rnd.NextDouble() * height));
+                foodList.Add(new Food(rnd.NextDouble() * width, rnd.NextDouble() * height));
             }
         }
 

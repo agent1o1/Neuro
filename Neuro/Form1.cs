@@ -8,28 +8,34 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
+using System.Drawing.Imaging;
+using ZedGraph;
 
 namespace Neuro
 {
     public partial class Form1 : Form
     {
-        int worldHeight = 100, worldWidth = 100;
+        int worldHeight = 550, worldWidth = 500;
         public Form1()
         {
             InitializeComponent();
+            zedGraphControl1.Width = worldWidth;
+            zedGraphControl1.Height = worldHeight;
+            World world = new World(worldWidth, worldHeight, 5);
+            world.AddAgent(1, 1);
+            world.AddAgent(1, 1);
             var semaphore = new SemaphoreSlim(0);
             var factory = new TaskFactory();
-            var queue = new Queue<KeyValuePair<List<Agent>,List<Food>>>();
-            World world = new World(worldWidth, worldHeight, 10);
+            var data = new Queue<KeyValuePair<List<Agent>,List<Food>>>();
 
             factory.StartNew(() =>
             {   
-                // поток производитель
                 while (true)
                 {
-                    Thread.Sleep(40); // задержка, симуляция долгого производства
-                    queue.Enqueue(new KeyValuePair<List<Agent>, List<Food>>(world.agents,world.foodList));
-                    semaphore.Release(); // к семафору +1
+                    Thread.Sleep(40);
+                    data.Enqueue(new KeyValuePair<List<Agent>, List<Food>>(world.agents,world.foodList));
+                    semaphore.Release();
                 }
             });
 
@@ -38,7 +44,7 @@ namespace Neuro
                 while (true)
                 {
                     semaphore.Wait();
-                    var item = queue.Dequeue();
+                    var item = data.Dequeue();
                     Draw(item);
                 }
             });
@@ -46,22 +52,35 @@ namespace Neuro
 
         private void Draw(KeyValuePair<List<Agent>, List<Food>> world)
         {
-            Bitmap bmp = new Bitmap(worldHeight, worldWidth);
-            SolidBrush agentBrush = new SolidBrush(Color.Red);
-            SolidBrush foodBrush = new SolidBrush(Color.Blue);
-            Graphics formGraphics = Graphics.FromImage(bmp);
-            foreach (var agent in world.Key)
+            GraphPane GP = new ZedGraphControl() { Width = worldWidth, Height = worldHeight }.GraphPane;
+            zedGraphControl1.GraphPane = GP;
+            PointPairList pointlist1 = new PointPairList();
+            foreach (var item in world.Key)
             {
-                formGraphics.FillEllipse(agentBrush, agent.x, agent.y, 10,10);
+                pointlist1.Add(item.x, item.y);
             }
-            foreach (var food in world.Value)
+            PointPairList pointlist2 = new PointPairList();
+            foreach (var item in world.Value)
             {
-                formGraphics.FillEllipse(agentBrush, food.x, food.y, 5, 5);
+                pointlist2.Add(item.x, item.y);
             }
-            pictureBox1.Image = bmp;
-            agentBrush.Dispose();
-            foodBrush.Dispose();
-            formGraphics.Dispose();
+            LineItem myCurve = GP.AddCurve("Agents", pointlist1, Color.Red, SymbolType.Circle);
+            myCurve.Line.IsVisible = false;
+            myCurve.Symbol.Fill.Color = Color.Red;
+            myCurve.Symbol.Fill.Type = FillType.Solid;
+            myCurve.Symbol.Size = 10;
+            LineItem myCurve1 = GP.AddCurve("Food", pointlist2, Color.Blue, SymbolType.Circle);
+            myCurve1.Line.IsVisible = false;
+            myCurve1.Symbol.Fill.Color = Color.Blue;
+            myCurve1.Symbol.Fill.Type = FillType.Solid;
+            myCurve1.Symbol.Size = 10;
+            GP.Legend.IsVisible = false;
+            GP.XAxis.IsVisible = false;
+            GP.YAxis.IsVisible = false;
+            GP.Title.IsVisible = false;
+            GP.Border.IsVisible = false;
+            zedGraphControl1.AxisChange();
+            zedGraphControl1.Invalidate();
         }
     }
 }

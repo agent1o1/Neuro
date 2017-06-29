@@ -20,21 +20,23 @@ namespace Neuro
         public Form1()
         {
             InitializeComponent();
-            zedGraphControl1.Width = worldWidth;
-            zedGraphControl1.Height = worldHeight;
+            zedGraphControl1.Width = worldWidth + 20;//что бы кружочки не резало пополам когда они проходят по границе среды
+            zedGraphControl1.Height = worldHeight + 20;
+
             World world = new World(worldWidth, worldHeight, 5);
             world.AddAgent(1, 1);
             world.AddAgent(1, 1);
+#region Drawing
             var semaphore = new SemaphoreSlim(0);
             var factory = new TaskFactory();
-            var data = new Queue<KeyValuePair<List<Agent>,List<Food>>>();
+            var data = new KeyValuePair<List<Agent>,List<Food>>();
 
             factory.StartNew(() =>
             {   
                 while (true)
                 {
                     Thread.Sleep(40);
-                    data.Enqueue(new KeyValuePair<List<Agent>, List<Food>>(world.agents,world.foodList));
+                    data = new KeyValuePair<List<Agent>, List<Food>>(world.agents,world.foodList);
                     semaphore.Release();
                 }
             });
@@ -44,15 +46,14 @@ namespace Neuro
                 while (true)
                 {
                     semaphore.Wait();
-                    var item = data.Dequeue();
-                    Draw(item);
+                    Draw(data);
                 }
             });
         }
 
         private void Draw(KeyValuePair<List<Agent>, List<Food>> world)
         {
-            GraphPane GP = new ZedGraphControl() { Width = worldWidth, Height = worldHeight }.GraphPane;
+            GraphPane GP = new ZedGraphControl() { Width = worldWidth + 20, Height = worldHeight + 20 }.GraphPane;
             zedGraphControl1.GraphPane = GP;
             PointPairList pointlist1 = new PointPairList();
             foreach (var item in world.Key)
@@ -75,6 +76,7 @@ namespace Neuro
             myCurve1.Symbol.Fill.Type = FillType.Solid;
             myCurve1.Symbol.Size = 10;
             GP.Legend.IsVisible = false;
+            //настройки самого контрола
             GP.XAxis.IsVisible = false;
             GP.YAxis.IsVisible = false;
             GP.Title.IsVisible = false;
@@ -84,3 +86,4 @@ namespace Neuro
         }
     }
 }
+#endregion
